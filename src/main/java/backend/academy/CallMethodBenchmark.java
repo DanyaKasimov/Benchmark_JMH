@@ -1,12 +1,21 @@
 package backend.academy;
 
-import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
-
-import java.lang.invoke.*;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
-
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Level;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.infra.Blackhole;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -25,11 +34,12 @@ public class CallMethodBenchmark {
     @Setup(Level.Trial)
     public void setup() throws Throwable {
         student = new Student("Danil", "Kasimov");
+        String methodName = "surname";
 
-        method = Student.class.getMethod("surname");
+        method = Student.class.getMethod(methodName);
 
         MethodHandles.Lookup lookup = MethodHandles.lookup();
-        methodHandle = lookup.findVirtual(Student.class, "surname", MethodType.methodType(String.class));
+        methodHandle = lookup.findVirtual(Student.class, methodName, MethodType.methodType(String.class));
 
         CallSite site = LambdaMetafactory.metafactory(
             lookup,
